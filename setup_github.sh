@@ -60,7 +60,7 @@ gh ssh-key add "$ssh_key_path.pub" --title "$(hostname)-$(date +%Y%m%d)"
 
 # Generate GPG key
 echo "Generating GPG key..."
-gpg --batch --generate-key <<EOF
+gpg --batch --full-generate-key <<EOF
 %no-protection
 Key-Type: eddsa
 Key-Curve: ed25519
@@ -73,7 +73,8 @@ Name-Email: $git_email
 Expire-Date: 0
 EOF
 
-gpg_key_id=$(gpg --list-keys --with-colons | grep '^pub' | cut -d: -f5 | head -n 1)
+# gpg_key_id=$(gpg --list-keys --with-colons | grep '^pub' | cut -d: -f5 | head -n 1)
+gpg_key_id=$(gpg --list-keys --with-colons | awk -F: '/^pub/ {print $5 ":" $6}' | sort -t: -k2 -n | tail -n 1 | cut -d: -f1)
 echo "GPG key ID: $gpg_key_id"
 
 # Export GPG public key and upload it to GitHub
